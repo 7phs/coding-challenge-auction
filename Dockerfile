@@ -1,4 +1,4 @@
-FROM golang:1.10-stretch
+FROM golang:1.11rc1-stretch
 
 ADD . /go/src/github.com/7phs/coding-challenge-auction
 WORKDIR /go/src/github.com/7phs/coding-challenge-auction
