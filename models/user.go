@@ -26,6 +26,10 @@ type userInfo struct {
 }
 
 func (o *userInfo) Id() UserKey {
+	if o == nil {
+		return 0
+	}
+
 	o.RLock()
 	defer o.RUnlock()
 
@@ -40,6 +44,10 @@ func (o *userInfo) SetName(name string) {
 }
 
 func (o *userInfo) Name() string {
+	if o == nil {
+		return ""
+	}
+
 	o.RLock()
 	defer o.RUnlock()
 

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/7phs/coding-challenge-auction/models"
 	"github.com/7phs/coding-challenge-auction/restapi/errCode"
@@ -12,17 +13,21 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+type ItemTopResponse struct {
+	RespError
+	Data struct {
+		UserId   models.UserKey `json:"user_id"`
+		UserName string         `json:"user_name"`
+		Bid      string         `json:"bid"`
+		Updated  time.Time      `json:"updated"`
+	} `json:"data"`
+}
+
 type ItemTopGetHandler struct {
 	request struct {
 		itemId int // :itemID
 	}
-	response struct {
-		RespError
-		Data struct {
-			UserId models.UserKey `json:"user_id"`
-			Bid    float64        `json:"bid"`
-		} `json:"data"`
-	}
+	response ItemTopResponse
 }
 
 func (o *ItemTopGetHandler) Bind(c *gin.Context) (errList ErrorRecordList) {
@@ -86,6 +91,9 @@ func ItemTopGet(c *gin.Context) {
 	}
 
 	handler.response.Data.UserId = top.UserId()
-	handler.response.Data.Bid = top.Bid()
+	u, _ := models.Users.Get(handler.response.Data.UserId)
+	handler.response.Data.UserName = u.Name()
+	handler.response.Data.Bid = models.FormatBid(top.Bid())
+	handler.response.Data.Updated = time.Unix(0, top.Updated())
 	c.JSON(http.StatusCreated, handler.response)
 }

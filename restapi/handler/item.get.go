@@ -15,26 +15,36 @@ import (
 )
 
 type ItemBid struct {
-	UserId  models.UserKey `json:"user_id"`
-	Bid     float64        `json:"bid"`
-	Updated time.Time      `json:"updated"`
+	UserId   models.UserKey `json:"user_id"`
+	UserName string         `json:"user_name"`
+	Bid      string         `json:"bid"`
+	bid      float64
+	Updated  time.Time `json:"updated"`
 }
 
 type ItemBidList []*ItemBid
 
 func (o *ItemBidList) Add(bid models.BidRecI) {
+	var (
+		b    = bid.Bid()
+		uId  = bid.UserId()
+		u, _ = models.Users.Get(uId)
+	)
+
 	*o = append(*o, &ItemBid{
-		UserId:  bid.UserId(),
-		Bid:     bid.Bid(),
-		Updated: time.Unix(0, bid.Updated()),
+		UserId:   uId,
+		UserName: u.Name(),
+		Bid:      models.FormatBid(b),
+		bid:      b,
+		Updated:  time.Unix(0, bid.Updated()),
 	})
 }
 
 func (o *ItemBidList) Sort() {
 	sort.Slice(*o, func(i, j int) bool {
-		if (*o)[i].Bid > (*o)[j].Bid {
+		if (*o)[i].bid > (*o)[j].bid {
 			return true
-		} else if (*o)[i].Bid < (*o)[j].Bid {
+		} else if (*o)[i].bid < (*o)[j].bid {
 			return false
 		}
 
@@ -42,18 +52,20 @@ func (o *ItemBidList) Sort() {
 	})
 }
 
+type ItemGetResponse struct {
+	RespError
+	Data struct {
+		Id    models.ItemKey `json:"id"`
+		Title string         `json:"title"`
+		Bids  ItemBidList    `json:"bids"`
+	} `json:"data"`
+}
+
 type ItemGetHandler struct {
 	request struct {
 		itemId int // :itemID
 	}
-	response struct {
-		RespError
-		Data struct {
-			Id    models.ItemKey `json:"id"`
-			Title string         `json:"title"`
-			Bids  []*ItemBid     `json:"bids"`
-		} `json:"data"`
-	}
+	response ItemGetResponse
 }
 
 func (o *ItemGetHandler) Bind(c *gin.Context) (errList ErrorRecordList) {

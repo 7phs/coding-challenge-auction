@@ -20,7 +20,7 @@ type BidPushHandler struct {
 
 		Bid float64 `form:"bid"`
 	}
-	response struct {
+	Response struct {
 		RespError
 	}
 }
@@ -54,8 +54,8 @@ func (o *BidPushHandler) Validate() (errList ErrorRecordList) {
 		errList.AddError(errCode.ErrValidation, "user_id: empty")
 	}
 
-	if o.request.Bid == 0. {
-		errList.AddError(errCode.ErrValidation, "bid: equal 0")
+	if o.request.Bid <= 0. {
+		errList.AddError(errCode.ErrValidation, "bid: should be positive and great than zero")
 	}
 
 	return
@@ -67,22 +67,22 @@ func BidPush(c *gin.Context) {
 	if err := handler.Bind(c); err != nil {
 		logrus.Error("bid/push: failed to bind - ", err)
 
-		handler.response.AppendError(err)
-		c.JSON(http.StatusBadRequest, handler.response)
+		handler.Response.AppendError(err)
+		c.JSON(http.StatusBadRequest, handler.Response)
 		return
 	}
 
 	logPrefix := fmt.Sprint("bid/push: item #", handler.request.itemId,
 		"; user #", handler.request.userId,
-		"; bid ", strconv.FormatFloat(handler.request.Bid, 'f', int(models.Precision), 64))
+		"; bid ", models.FormatBid(handler.request.Bid))
 
 	log.Info(logPrefix + ", handle")
 	// VALIDATE
 	if err := handler.Validate(); err != nil {
 		logrus.Error(logPrefix+", failed to validate params - ", err)
 
-		handler.response.AppendError(err)
-		c.JSON(http.StatusBadRequest, handler.response)
+		handler.Response.AppendError(err)
+		c.JSON(http.StatusBadRequest, handler.Response)
 		return
 	}
 	// PUSH
@@ -96,5 +96,5 @@ func BidPush(c *gin.Context) {
 	if created {
 		status = http.StatusCreated
 	}
-	c.JSON(status, handler.response)
+	c.JSON(status, handler.Response)
 }

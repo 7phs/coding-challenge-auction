@@ -18,7 +18,7 @@ type UserAddHandler struct {
 	request struct {
 		Name string `form:"name"`
 	}
-	response struct {
+	Response struct {
 		RespError
 		Data struct {
 			Id   models.UserKey `json:"id"`
@@ -52,8 +52,8 @@ func UserAdd(c *gin.Context) {
 	if err := handler.Bind(c); err != nil {
 		logrus.Error("user/add: failed to bind - ", err)
 
-		handler.response.AppendError(err)
-		c.JSON(http.StatusBadRequest, handler.response)
+		handler.Response.AppendError(err)
+		c.JSON(http.StatusBadRequest, handler.Response)
 		return
 	}
 
@@ -64,8 +64,8 @@ func UserAdd(c *gin.Context) {
 	if err := handler.Validate(); err != nil {
 		logrus.Error(logPrefix+", failed to validate params - ", err)
 
-		handler.response.AppendError(err)
-		c.JSON(http.StatusBadRequest, handler.response)
+		handler.Response.AppendError(err)
+		c.JSON(http.StatusBadRequest, handler.Response)
 		return
 	}
 	// PUSH
@@ -76,12 +76,12 @@ func UserAdd(c *gin.Context) {
 	if err != nil {
 		logrus.Error(logPrefix+", failed to add into model - ", err)
 
-		handler.response.AddError(errCode.ErrUserProcessed, err)
-		c.JSON(http.StatusBadRequest, handler.response)
+		handler.Response.AddError(errCode.ErrUserProcessed, err)
+		c.JSON(http.StatusBadRequest, handler.Response)
 		return
 	}
 	// RESPONSE
-	handler.response.Data.Id = user.Id()
-	handler.response.Data.Name = user.Name()
-	c.JSON(http.StatusCreated, handler.response)
+	handler.Response.Data.Id = user.Id()
+	handler.Response.Data.Name = user.Name()
+	c.JSON(http.StatusCreated, handler.Response)
 }

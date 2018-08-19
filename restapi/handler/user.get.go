@@ -2,30 +2,42 @@ package handler
 
 import (
 	"fmt"
+	"net/http"
+	"sort"
+	"strconv"
+	"strings"
+	"time"
+
 	"github.com/7phs/coding-challenge-auction/models"
 	"github.com/7phs/coding-challenge-auction/restapi/errCode"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
-	"net/http"
-	"sort"
-	"strconv"
-	"time"
 )
 
 type UserBid struct {
-	ItemId  models.ItemKey `json:"item_id"`
-	Bid     float64        `json:"bid"`
-	Updated time.Time      `json:"updated"`
+	ItemId    models.ItemKey `json:"item_id"`
+	ItemTitle string         `json:"item_title"`
+	Bid       string         `json:"bid"`
+	bid       float64
+	Updated   time.Time `json:"updated"`
 }
 
 type UserBidList []*UserBid
 
 func (o *UserBidList) Add(bid models.BidRecI) {
+	var (
+		b    = bid.Bid()
+		iId  = bid.ItemId()
+		i, _ = models.Items.Get(iId)
+	)
+
 	*o = append(*o, &UserBid{
-		ItemId:  bid.ItemId(),
-		Bid:     bid.Bid(),
-		Updated: time.Unix(0, bid.Updated()),
+		ItemId:    iId,
+		ItemTitle: i.Title(),
+		Bid:       models.FormatBid(b),
+		bid:       b,
+		Updated:   time.Unix(0, bid.Updated()),
 	})
 }
 
@@ -37,28 +49,30 @@ func (o *UserBidList) Sort() {
 			return false
 		}
 
-		if (*o)[i].Bid > (*o)[j].Bid {
+		if (*o)[i].bid > (*o)[j].bid {
 			return true
-		} else if (*o)[i].Bid < (*o)[j].Bid {
+		} else if (*o)[i].bid < (*o)[j].bid {
 			return false
 		}
 
-		return (*o)[i].ItemId > (*o)[j].ItemId
+		return strings.Compare((*o)[i].ItemTitle, (*o)[j].ItemTitle) < 0
 	})
+}
+
+type UserGetResponse struct {
+	RespError
+	Data struct {
+		Id   models.UserKey `json:"id"`
+		Name string         `json:"name"`
+		Bids UserBidList    `json:"bids"`
+	} `json:"data"`
 }
 
 type UserGetHandler struct {
 	request struct {
 		userId int // :userID
 	}
-	response struct {
-		RespError
-		Data struct {
-			Id   models.UserKey `json:"id"`
-			Name string         `json:"name"`
-			Bids UserBidList    `json:"bids"`
-		} `json:"data"`
-	}
+	response UserGetResponse
 }
 
 func (o *UserGetHandler) Bind(c *gin.Context) (errList ErrorRecordList) {

@@ -33,6 +33,10 @@ type itemInfo struct {
 }
 
 func (o *itemInfo) Id() ItemKey {
+	if o == nil {
+		return 0
+	}
+
 	o.RLock()
 	defer o.RUnlock()
 
@@ -47,6 +51,10 @@ func (o *itemInfo) SetTitle(title string) {
 }
 
 func (o *itemInfo) Title() string {
+	if o == nil {
+		return ""
+	}
+
 	o.RLock()
 	defer o.RUnlock()
 
@@ -96,7 +104,7 @@ func (o *item) Bids() []BidRecI {
 	o.RLock()
 	defer o.RUnlock()
 
-	result := make([]BidRecI, 0, len(o.bidsTop))
+	result := make([]BidRecI, len(o.bidsTop))
 	copy(result, o.bidsTop)
 
 	return result

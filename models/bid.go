@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"strconv"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -10,6 +11,10 @@ import (
 const (
 	Precision = float64(100000)
 )
+
+func FormatBid(b float64) string {
+	return strconv.FormatFloat(b, 'f', 5, 64)
+}
 
 type BidRecI interface {
 	Id() BidKey
