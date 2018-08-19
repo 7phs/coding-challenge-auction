@@ -1,9 +1,10 @@
 package models
 
 import (
-	"sync"
-	"math/rand"
 	"container/heap"
+	"math/rand"
+	"os"
+	"sync"
 )
 
 const (
@@ -32,7 +33,7 @@ type itemInfo struct {
 
 func (o *itemInfo) Id() itemKey {
 	o.RLock()
-	defer o.Unlock()
+	defer o.RUnlock()
 
 	return o.id
 }
@@ -46,7 +47,7 @@ func (o *itemInfo) SetTitle(title string) {
 
 func (o *itemInfo) Title() string {
 	o.RLock()
-	defer o.Unlock()
+	defer o.RUnlock()
 
 	return o.title
 }
@@ -79,11 +80,15 @@ func (o *item) Push(bid BidRecI) {
 	}
 }
 
-func (o *item) Top() BidRecI {
+func (o *item) Top() (BidRecI, error) {
 	o.RLock()
 	defer o.RUnlock()
 
-	return o.bidsTop[0]
+	if o.bidsTop.Len() == 0 {
+		return nil, os.ErrNotExist
+	}
+
+	return o.bidsTop[0], nil
 }
 
 func (o *item) Bids() []BidRecI {

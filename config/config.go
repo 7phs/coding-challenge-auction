@@ -1,9 +1,10 @@
 package config
 
 import (
-	log "github.com/sirupsen/logrus"
-	"github.com/7phs/coding-challenge-auction/helpers"
 	"strings"
+
+	"github.com/7phs/coding-challenge-auction/helpers"
+	log "github.com/sirupsen/logrus"
 )
 
 const (

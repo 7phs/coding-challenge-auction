@@ -3,9 +3,9 @@ package handler
 import (
 	"net/http"
 
+	"github.com/7phs/coding-challenge-auction/config"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
-	"github.com/7phs/coding-challenge-auction/config"
 )
 
 func DefaultRouter() http.Handler {

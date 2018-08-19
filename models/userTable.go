@@ -1,8 +1,10 @@
 package models
 
 import (
-	"sync"
 	"os"
+	"sync"
+
+	"github.com/7phs/coding-challenge-auction/helpers"
 )
 
 type UserTable struct {
@@ -13,8 +15,8 @@ func NewUserTable() *UserTable {
 	return &UserTable{}
 }
 
-func (o *UserTable) Add(item *item) error {
-	_, loaded := o.users.LoadOrStore(item.Id(), item)
+func (o *UserTable) Add(user *user) error {
+	_, loaded := o.users.LoadOrStore(user.Id(), user)
 	if loaded {
 		return os.ErrExist
 	}
@@ -44,6 +46,11 @@ func (o *UserTable) Push(bid BidRecI) {
 		})
 	}
 
-	itemRec := rec.(*item)
-	itemRec.Push(bid)
+	userRec := rec.(*user)
+	userRec.Push(bid)
+}
+
+// Recommended using only for testing
+func (o *UserTable) Len() int {
+	return helpers.SyncMapLen(&o.users)
 }

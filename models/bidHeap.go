@@ -5,15 +5,15 @@ type bidHeap []BidRecI
 func (h bidHeap) Len() int { return len(h) }
 
 func (h bidHeap) Less(i, j int) bool {
-	if h[i].Bid() < h[j].Bid() {
+	if h[i].Bid() > h[j].Bid() {
 		return true
 	}
 
-	if h[i].Bid() > h[j].Bid() {
+	if h[i].Bid() < h[j].Bid() {
 		return false
 	}
 
-	return h[i].Updated()>h[i].Updated()
+	return h[i].Updated() > h[i].Updated()
 }
 
 func (h bidHeap) Swap(i, j int) { h[i], h[j] = h[j], h[i] }

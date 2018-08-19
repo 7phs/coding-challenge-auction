@@ -4,12 +4,12 @@ import (
 	"os"
 	"os/signal"
 
-	log "github.com/sirupsen/logrus"
-	"github.com/spf13/cobra"
+	"github.com/7phs/coding-challenge-auction/config"
 	"github.com/7phs/coding-challenge-auction/logger"
 	"github.com/7phs/coding-challenge-auction/models"
-	"github.com/7phs/coding-challenge-auction/config"
 	"github.com/7phs/coding-challenge-auction/restapi"
+	log "github.com/sirupsen/logrus"
+	"github.com/spf13/cobra"
 )
 
 var RunCmd = &cobra.Command{

@@ -3,13 +3,13 @@ package handler
 import (
 	"net/http"
 
+	"github.com/7phs/coding-challenge-auction/restapi/errCode"
 	"github.com/gin-gonic/gin"
-	"gitlab.teamc.io/worldskills/esatk/api/errCode"
 )
 
 func NotImplemented(c *gin.Context) {
 	resp := &RespError{}
-	resp.AddError(errCode.ErrNorImplemented, "not implemented")
+	resp.AddError(errCode.ErrNotImplemented, "not implemented")
 
 	c.JSON(http.StatusNotImplemented, resp)
 }

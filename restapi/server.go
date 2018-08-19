@@ -1,14 +1,14 @@
 package restapi
 
 import (
-"context"
-"net/http"
-"time"
+	"context"
+	"net/http"
+	"time"
 
-"github.com/gin-gonic/gin"
-log "github.com/sirupsen/logrus"
 	"github.com/7phs/coding-challenge-auction/config"
 	"github.com/7phs/coding-challenge-auction/restapi/handler"
+	"github.com/gin-gonic/gin"
+	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -22,6 +22,8 @@ type Server struct {
 }
 
 func Init(stage string) {
+	log.Info("http: init")
+
 	switch stage {
 	case config.StageTesting:
 		gin.SetMode(gin.TestMode)
@@ -44,6 +46,8 @@ func NewServer(conf *config.Config) *Server {
 }
 
 func (o *Server) Run() *Server {
+	log.Info("http/server: run")
+
 	go func() {
 		log.Info("http: start listening ", o.Addr)
 		if err := o.ListenAndServe(); err != nil && err != http.ErrServerClosed {
@@ -58,8 +62,9 @@ func (o *Server) Shutdown() {
 	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
 	defer cancel()
 
-	log.Info("http: shutdown")
+	log.Info("http: shutdown - start")
 	if err := o.Server.Shutdown(ctx); err != nil {
 		log.Error("failed to shutdown HTTP server")
 	}
+	log.Info("http: shutdown - finish")
 }

@@ -1,1 +1,5 @@
-package restapi
+package errCode
+
+const (
+	ErrNotImplemented = 100
+)

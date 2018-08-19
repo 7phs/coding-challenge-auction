@@ -1,5 +1,9 @@
 package models
 
+import (
+	log "github.com/sirupsen/logrus"
+)
+
 var (
 	Users *UserTable
 	Items *ItemTable
@@ -7,6 +11,8 @@ var (
 )
 
 func Init() {
+	log.Info("models: init")
+
 	Users = NewUserTable()
 	Items = NewItemTable()
 	Bids = NewBidTable().
@@ -15,7 +21,9 @@ func Init() {
 }
 
 func Shutdown() {
+	log.Info("models: shutdown - start")
 	Bids.Shutdown()
+	log.Info("models: shutdown - finish")
 }
 
 // Using for testing

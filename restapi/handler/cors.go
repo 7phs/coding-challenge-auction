@@ -3,8 +3,8 @@ package handler
 import (
 	"net/http"
 
+	"github.com/7phs/coding-challenge-auction/config"
 	"github.com/gin-gonic/gin"
-	"gitlab.teamc.io/worldskills/esatk/api/configuration"
 )
 
 func AllowCors() gin.HandlerFunc {
@@ -14,7 +14,7 @@ func AllowCors() gin.HandlerFunc {
 }
 
 func Options(methods string) func(*gin.Context) {
-	if configuration.Conf.Cors {
+	if config.Conf.Cors {
 		return func(c *gin.Context) {
 			c.Header("Access-Control-Allow-Methods", methods)
 			c.Header("Access-Control-Allow-Credentials", "true")

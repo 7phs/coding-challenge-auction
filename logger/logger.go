@@ -6,9 +6,9 @@ import (
 	"os"
 	"strings"
 
+	"github.com/7phs/coding-challenge-auction/helpers"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
-	"github.com/7phs/coding-challenge-auction/helpers"
 )
 
 var (

@@ -20,16 +20,16 @@ type BidRecI interface {
 
 type BidKey int64
 
-func newBidId(userId userKey, itemId itemKey) BidKey {
-	return BidKey(int64(userId)<<32 + int64(itemId))
+func newBidId(itemId itemKey, userId userKey) BidKey {
+	return BidKey(int64(itemId)<<32 + int64(userId))
 }
 
 func (o BidKey) UserId() userKey {
-	return userKey(o >> 32)
+	return userKey(o)
 }
 
 func (o BidKey) ItemId() itemKey {
-	return itemKey(o)
+	return itemKey(o >> 32)
 }
 
 type bid struct {
@@ -40,6 +40,12 @@ type bid struct {
 	shutdown chan struct{}
 }
 
+func newBid() *bid {
+	return &bid{
+		queue: make(chan float64),
+	}
+}
+
 func (o *bid) Bid() float64 {
 	return float64(atomic.LoadInt64(&o.bid)) / precision
 }
@@ -48,8 +54,10 @@ func (o *bid) Updated() int64 {
 	return atomic.LoadInt64(&o.updated)
 }
 
-func (o *bid) SetBid(bid float64) {
+func (o *bid) SetBid(bid float64) *bid {
 	o.queue <- bid
+
+	return o
 }
 
 func (o *bid) store(bid float64) {
@@ -88,11 +96,8 @@ type bidRec struct {
 
 func newBidRec(itemId itemKey, userId userKey, shutdown chan struct{}, wait *sync.WaitGroup) *bidRec {
 	rec := &bidRec{
-		id: newBidId(userId, itemId),
-		bid: bid{
-			queue:   make(chan float64),
-			updated: time.Now().UnixNano(),
-		},
+		id:  newBidId(itemId, userId),
+		bid: *newBid(),
 	}
 
 	rec.runQueue(shutdown, wait)
@@ -110,4 +115,8 @@ func (o *bidRec) UserId() userKey {
 
 func (o *bidRec) ItemId() itemKey {
 	return o.id.ItemId()
+}
+
+func (o *bidRec) SetBid(bid float64) {
+	o.bid.SetBid(bid)
 }

@@ -1,8 +1,8 @@
 package models
 
 import (
-	"sync"
 	"math/rand"
+	"sync"
 )
 
 type UserI interface {
@@ -26,7 +26,7 @@ type userInfo struct {
 
 func (o *userInfo) Id() userKey {
 	o.RLock()
-	defer o.Unlock()
+	defer o.RUnlock()
 
 	return o.id
 }
@@ -40,7 +40,7 @@ func (o *userInfo) SetName(name string) {
 
 func (o *userInfo) Name() string {
 	o.RLock()
-	defer o.Unlock()
+	defer o.RUnlock()
 
 	return o.name
 }
@@ -52,9 +52,9 @@ type user struct {
 }
 
 func User(name string) *user {
-	return &user {
+	return &user{
 		userInfo: userInfo{
-			id: nextUserKey(),
+			id:   nextUserKey(),
 			name: name,
 		},
 	}

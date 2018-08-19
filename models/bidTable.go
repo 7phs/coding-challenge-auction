@@ -1,6 +1,10 @@
 package models
 
-import "sync"
+import (
+	"sync"
+
+	"github.com/7phs/coding-challenge-auction/helpers"
+)
 
 type BidLinkedStorage interface {
 	Push(BidRecI)
@@ -22,7 +26,7 @@ func NewBidTable() *BidTable {
 }
 
 // Without synchronisation, call on initial stages
-func (o *BidTable) LinkStorage(linked ... BidLinkedStorage) *BidTable {
+func (o *BidTable) LinkStorage(linked ...BidLinkedStorage) *BidTable {
 	o.linked = append(o.linked, linked...)
 
 	return o
@@ -41,7 +45,6 @@ func (o *BidTable) link(rec BidRecI) {
 
 func (o *BidTable) Push(itemId itemKey, userId userKey, bid float64) *bidRec {
 	newRec := newBidRec(itemId, userId, o.shutdown, &o.wait)
-
 	r, _ := o.storage.LoadOrStore(newRec.Id(), newRec)
 
 	rec := r.(*bidRec)
@@ -50,4 +53,9 @@ func (o *BidTable) Push(itemId itemKey, userId userKey, bid float64) *bidRec {
 	o.link(rec)
 
 	return rec
+}
+
+// Recommended using only for testing
+func (o *BidTable) Len() int {
+	return helpers.SyncMapLen(&o.storage)
 }

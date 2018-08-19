@@ -1,10 +1,10 @@
 package models
 
 import (
-	"testing"
-	"sync"
 	"math/rand"
+	"sync"
 	"sync/atomic"
+	"testing"
 )
 
 func TestBid_Bid(t *testing.T) {
@@ -14,7 +14,7 @@ func TestBid_Bid(t *testing.T) {
 		test     sync.WaitGroup
 		wait     sync.WaitGroup
 
-		b                = newBidRec(100, 110, shutdown, &wait)
+		b        = newBidRec(100, 110, shutdown, &wait)
 		expected int64
 	)
 
@@ -43,8 +43,55 @@ func TestBid_Bid(t *testing.T) {
 	close(shutdown)
 	wait.Wait()
 
-	exist := int64(b.Bid()*precision)
-	if exist!=expected {
+	exist := int64(b.Bid() * precision)
+	if exist != expected {
 		t.Error("failed to store the max value of bid. Got ", exist, ", but expected is ", expected)
 	}
+}
+
+func benchBidBid(b *testing.B, multiplier int) {
+	var (
+		start    = make(chan struct{})
+		shutdown = make(chan struct{})
+		wait     sync.WaitGroup
+		test     sync.WaitGroup
+
+		bi = newBidRec(100, 110, shutdown, &wait)
+	)
+
+	for i := 0; i < multiplier; i++ {
+		test.Add(1)
+		go func() {
+			defer test.Done()
+
+			v := rand.Int63n(1000*int64(precision)) + 1
+
+			<-start
+
+			for n := 0; n < b.N/multiplier; n++ {
+				bi.SetBid(float64(v) / precision)
+			}
+		}()
+	}
+
+	b.ResetTimer()
+
+	close(start)
+	test.Wait()
+	close(shutdown)
+	wait.Wait()
+
+	b.StopTimer()
+}
+
+func BenchmarkBid_Bid1(b *testing.B) {
+	benchBidBid(b, 1)
+}
+
+func BenchmarkBid_Bid10(b *testing.B) {
+	benchBidBid(b, 10)
+}
+
+func BenchmarkBid_Bid1000(b *testing.B) {
+	benchBidBid(b, 1000)
 }

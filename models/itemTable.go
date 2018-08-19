@@ -1,8 +1,10 @@
 package models
 
 import (
-	"sync"
 	"os"
+	"sync"
+
+	"github.com/7phs/coding-challenge-auction/helpers"
 )
 
 type ItemTable struct {
@@ -46,4 +48,9 @@ func (o *ItemTable) Push(bid BidRecI) {
 
 	itemRec := rec.(*item)
 	itemRec.Push(bid)
+}
+
+// Recommended using only for testing
+func (o *ItemTable) Len() int {
+	return helpers.SyncMapLen(&o.items)
 }
