@@ -118,23 +118,23 @@ Environment variable:
 
 A service supporting a several command to communicate with a service using REST API:
 
-- **bid push** --user_id [USER_ID] --item_id [ITEM_ID] --bid 134.45. 
+- auction **bid push** --user_id [USER_ID] --item_id [ITEM_ID] --bid 134.45. 
    
   _Note_: possible push a bid for any user and item id which before not added to service.
   
-- **item get** --id [ITEM_ID]
+- auction **item get** --id [ITEM_ID]
 
-- **item top** --id [ITEM_ID]
+- auction **item top** --id [ITEM_ID]
 
-- **item add** --title [TITLE]
+- auction **item add** --title [TITLE]
 
-- **item update** --id [ITEM_ID] --title [TITLE]
+- auction **item update** --id [ITEM_ID] --title [TITLE]
   
-- **user get** --id [USER_ID]
+- auction **user get** --id [USER_ID]
 
-- **user add** --name [NAME]
+- auction **user add** --name [NAME]
 
-- **user update** --id [ITEM_ID] --name [NAME]
+- auction **user update** --id [ITEM_ID] --name [NAME]
 
 ## Performance
 
