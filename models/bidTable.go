@@ -43,16 +43,16 @@ func (o *BidTable) link(rec BidRecI) {
 	}
 }
 
-func (o *BidTable) Push(itemId itemKey, userId userKey, bid float64) *bidRec {
+func (o *BidTable) Push(itemId ItemKey, userId UserKey, bid float64) (*bidRec, bool) {
 	newRec := newBidRec(itemId, userId, o.shutdown, &o.wait)
-	r, _ := o.storage.LoadOrStore(newRec.Id(), newRec)
+	r, loaded := o.storage.LoadOrStore(newRec.Id(), newRec)
 
 	rec := r.(*bidRec)
 	rec.SetBid(bid)
 
 	o.link(rec)
 
-	return rec
+	return rec, !loaded
 }
 
 // Recommended using only for testing

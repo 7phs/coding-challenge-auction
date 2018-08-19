@@ -1,35 +1,36 @@
 package models
 
 import (
+	"fmt"
 	"sync"
 	"sync/atomic"
 	"time"
 )
 
 const (
-	precision = float64(100000)
+	Precision = float64(100000)
 )
 
 type BidRecI interface {
 	Id() BidKey
-	UserId() userKey
-	ItemId() itemKey
+	UserId() UserKey
+	ItemId() ItemKey
 	Bid() float64
 	Updated() int64
 }
 
 type BidKey int64
 
-func newBidId(itemId itemKey, userId userKey) BidKey {
+func newBidId(itemId ItemKey, userId UserKey) BidKey {
 	return BidKey(int64(itemId)<<32 + int64(userId))
 }
 
-func (o BidKey) UserId() userKey {
-	return userKey(o)
+func (o BidKey) UserId() UserKey {
+	return UserKey(o)
 }
 
-func (o BidKey) ItemId() itemKey {
-	return itemKey(o >> 32)
+func (o BidKey) ItemId() ItemKey {
+	return ItemKey(o >> 32)
 }
 
 type bid struct {
@@ -47,7 +48,7 @@ func newBid() *bid {
 }
 
 func (o *bid) Bid() float64 {
-	return float64(atomic.LoadInt64(&o.bid)) / precision
+	return float64(atomic.LoadInt64(&o.bid)) / Precision
 }
 
 func (o *bid) Updated() int64 {
@@ -62,7 +63,7 @@ func (o *bid) SetBid(bid float64) *bid {
 
 func (o *bid) store(bid float64) {
 	atomic.StoreInt64(&o.updated, time.Now().UnixNano())
-	atomic.StoreInt64(&o.bid, int64(bid*precision))
+	atomic.StoreInt64(&o.bid, int64(bid*Precision))
 }
 
 func (o *bid) runQueue(shutdown chan struct{}, wait *sync.WaitGroup) *bid {
@@ -94,7 +95,7 @@ type bidRec struct {
 	id BidKey
 }
 
-func newBidRec(itemId itemKey, userId userKey, shutdown chan struct{}, wait *sync.WaitGroup) *bidRec {
+func newBidRec(itemId ItemKey, userId UserKey, shutdown chan struct{}, wait *sync.WaitGroup) *bidRec {
 	rec := &bidRec{
 		id:  newBidId(itemId, userId),
 		bid: *newBid(),
@@ -105,15 +106,19 @@ func newBidRec(itemId itemKey, userId userKey, shutdown chan struct{}, wait *syn
 	return rec
 }
 
+func (o *bidRec) String() string {
+	return fmt.Sprintf("#%d; item: #%d; user: #%d; bid: %.5f", o.Id(), o.ItemId(), o.UserId(), o.Bid())
+}
+
 func (o *bidRec) Id() BidKey {
 	return o.id
 }
 
-func (o *bidRec) UserId() userKey {
+func (o *bidRec) UserId() UserKey {
 	return o.id.UserId()
 }
 
-func (o *bidRec) ItemId() itemKey {
+func (o *bidRec) ItemId() ItemKey {
 	return o.id.ItemId()
 }
 

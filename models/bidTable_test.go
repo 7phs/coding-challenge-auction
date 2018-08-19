@@ -37,7 +37,7 @@ func TestBidTable_Push(t *testing.T) {
 
 		usersCount = 200
 		itemsCount = 10
-		bidsCount  = int(30 * int64(precision))
+		bidsCount  = int(30 * int64(Precision))
 
 		testLinked = newTestLinkedStorage()
 
@@ -58,7 +58,7 @@ func TestBidTable_Push(t *testing.T) {
 
 			for j := 0; j < usersCount; j++ {
 				for k := 0; k < itemsCount; k++ {
-					bidTable.Push(itemKey(items[k]+1), userKey(users[j]+1), float64(bids[(i+k)%bidsCount])/precision)
+					bidTable.Push(ItemKey(items[k]+1), UserKey(users[j]+1), float64(bids[(i+k)%bidsCount])/Precision)
 				}
 			}
 		}()
@@ -90,7 +90,7 @@ func benchBidTablePush(b *testing.B, multiplier int) {
 
 		usersCount = 1000
 		itemsCount = 20
-		bidsCount  = int(30 * int64(precision))
+		bidsCount  = int(30 * int64(Precision))
 
 		testLinked = newTestLinkedStorage()
 
@@ -110,7 +110,7 @@ func benchBidTablePush(b *testing.B, multiplier int) {
 			<-start
 
 			for n := 1; ; n++ {
-				bidTable.Push(itemKey(items[n%itemsCount]), userKey(users[n%usersCount]), float64(bids[n%bidsCount])/precision)
+				bidTable.Push(ItemKey(items[n%itemsCount]), UserKey(users[n%usersCount]), float64(bids[n%bidsCount])/Precision)
 
 				if n > b.N/multiplier {
 					break

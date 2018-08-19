@@ -15,7 +15,7 @@ func TestUserTable_Push(t *testing.T) {
 
 		multiplier = 5
 		itemsCount = 200
-		bidsCount  = int(30 * int64(precision))
+		bidsCount  = int(30 * int64(Precision))
 
 		userTable = NewUserTable()
 
@@ -36,8 +36,8 @@ func TestUserTable_Push(t *testing.T) {
 					t.Error("failed to add a user: ", err)
 				}
 
-				b := newBidRec(itemKey(items[j]), user.Id(), shutdown, &wait)
-				b.SetBid(float64(bids[j%bidsCount]) / precision)
+				b := newBidRec(ItemKey(items[j]), user.Id(), shutdown, &wait)
+				b.SetBid(float64(bids[j%bidsCount]) / Precision)
 
 				userTable.Push(b)
 			}

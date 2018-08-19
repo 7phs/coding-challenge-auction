@@ -24,7 +24,7 @@ func (o *UserTable) Add(user *user) error {
 	return nil
 }
 
-func (o *UserTable) Get(id userKey) (UserI, error) {
+func (o *UserTable) Get(id UserKey) (UserI, error) {
 	rec, ok := o.users.Load(id)
 	if !ok {
 		return nil, os.ErrNotExist

@@ -24,7 +24,7 @@ func (o *ItemTable) Add(item *item) error {
 	return nil
 }
 
-func (o *ItemTable) Get(id itemKey) (ItemI, error) {
+func (o *ItemTable) Get(id ItemKey) (ItemI, error) {
 	rec, ok := o.items.Load(id)
 	if !ok {
 		return nil, os.ErrNotExist

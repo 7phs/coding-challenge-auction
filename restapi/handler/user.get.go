@@ -2,34 +2,66 @@ package handler
 
 import (
 	"fmt"
-	"net/http"
-	"strconv"
-	"strings"
-
 	"github.com/7phs/coding-challenge-auction/models"
 	"github.com/7phs/coding-challenge-auction/restapi/errCode"
 	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/gin/binding"
 	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
+	"net/http"
+	"sort"
+	"strconv"
+	"time"
 )
 
-type UserUpdateHandler struct {
+type UserBid struct {
+	ItemId  models.ItemKey `json:"item_id"`
+	Bid     float64        `json:"bid"`
+	Updated time.Time      `json:"updated"`
+}
+
+type UserBidList []*UserBid
+
+func (o *UserBidList) Add(bid models.BidRecI) {
+	*o = append(*o, &UserBid{
+		ItemId:  bid.ItemId(),
+		Bid:     bid.Bid(),
+		Updated: time.Unix(0, bid.Updated()),
+	})
+}
+
+func (o *UserBidList) Sort() {
+	sort.Slice(*o, func(i, j int) bool {
+		if (*o)[i].Updated.After((*o)[j].Updated) {
+			return true
+		} else if (*o)[i].Updated.Before((*o)[j].Updated) {
+			return false
+		}
+
+		if (*o)[i].Bid > (*o)[j].Bid {
+			return true
+		} else if (*o)[i].Bid < (*o)[j].Bid {
+			return false
+		}
+
+		return (*o)[i].ItemId > (*o)[j].ItemId
+	})
+}
+
+type UserGetHandler struct {
 	request struct {
 		userId int // :userID
-
-		Name string `form:"name"`
 	}
 	response struct {
 		RespError
 		Data struct {
 			Id   models.UserKey `json:"id"`
 			Name string         `json:"name"`
+			Bids UserBidList    `json:"bids"`
 		} `json:"data"`
 	}
 }
 
-func (o *UserUpdateHandler) Bind(c *gin.Context) (errList ErrorRecordList) {
+func (o *UserGetHandler) Bind(c *gin.Context) (errList ErrorRecordList) {
 	var err error
 
 	o.request.userId, err = strconv.Atoi(c.Param("userID"))
@@ -37,40 +69,29 @@ func (o *UserUpdateHandler) Bind(c *gin.Context) (errList ErrorRecordList) {
 		errList.AddError(errCode.ErrBinding, "user_id: "+err.Error())
 	}
 
-	if err := c.ShouldBindWith(&o.request, binding.Default(c.Request.Method, c.ContentType())); err != nil {
-		errList.AddError(errCode.ErrBinding, "name: "+err.Error())
-	}
-
 	return
 }
 
-func (o *UserUpdateHandler) Validate() (errList ErrorRecordList) {
+func (o *UserGetHandler) Validate() (errList ErrorRecordList) {
 	if o.request.userId == 0 {
 		errList.AddError(errCode.ErrValidation, "user_id: empty")
 	}
 
-	o.request.Name = strings.TrimSpace(o.request.Name)
-	if l := len(o.request.Name); l == 0 {
-		errList.AddError(errCode.ErrValidation, "name: empty")
-	} else if l > limitTitleLen {
-		errList.AddError(errCode.ErrValidation, "name: length greater than a limit "+strconv.Itoa(limitTitleLen))
-	}
-
 	return
 }
 
-func UserUpdate(c *gin.Context) {
-	handler := UserUpdateHandler{}
+func UserGet(c *gin.Context) {
+	handler := UserGetHandler{}
 	// BIND
 	if err := handler.Bind(c); err != nil {
-		logrus.Error("user/update: failed to bind - ", err)
+		logrus.Error("user/get: failed to bind - ", err)
 
 		handler.response.AppendError(err)
 		c.JSON(http.StatusBadRequest, handler.response)
 		return
 	}
 
-	logPrefix := fmt.Sprintf("user/update: #%d; name '%s'", handler.request.userId, handler.request.Name)
+	logPrefix := fmt.Sprintf("user/get: #%d", handler.request.userId)
 
 	log.Info(logPrefix + ", handle")
 	// VALIDATE
@@ -90,12 +111,17 @@ func UserUpdate(c *gin.Context) {
 		c.JSON(http.StatusNotFound, handler.response)
 		return
 	}
-	// UPDATE
-	log.Info(logPrefix + ", update a record")
+	// MARSHALING BIDS LIST
+	bidsList := user.Bids()
 
-	user.SetName(handler.request.Name)
+	result := make(UserBidList, 0, len(bidsList))
+	for _, b := range bidsList {
+		result.Add(b)
+	}
+	result.Sort()
 	// RESPONSE
 	handler.response.Data.Id = user.Id()
 	handler.response.Data.Name = user.Name()
+	handler.response.Data.Bids = result
 	c.JSON(http.StatusCreated, handler.response)
 }

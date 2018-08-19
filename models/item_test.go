@@ -58,7 +58,7 @@ func BenchmarkItem_Top(b *testing.B) {
 	for i := 0; i < lenBids; i++ {
 		bidsList = append(bidsList, &bidRec{
 			id:  newBidId(it.Id(), user.Id()),
-			bid: *newBid().runQueue(shutdown, &wait).SetBid(float64(rand.Int63n(100000000)) / precision),
+			bid: *newBid().runQueue(shutdown, &wait).SetBid(float64(rand.Int63n(100000000)) / Precision),
 		})
 	}
 

@@ -15,7 +15,7 @@ func TestItemTable_Push(t *testing.T) {
 
 		multiplier = 5
 		usersCount = 200
-		bidsCount  = int(30 * int64(precision))
+		bidsCount  = int(30 * int64(Precision))
 
 		itemTable = NewItemTable()
 
@@ -36,8 +36,8 @@ func TestItemTable_Push(t *testing.T) {
 					t.Error("failed to add an item: ", err)
 				}
 
-				b := newBidRec(item.Id(), userKey(users[j]), shutdown, &wait)
-				b.SetBid(float64(bids[j%bidsCount]) / precision)
+				b := newBidRec(item.Id(), UserKey(users[j]), shutdown, &wait)
+				b.SetBid(float64(bids[j%bidsCount]) / Precision)
 
 				itemTable.Push(b)
 			}

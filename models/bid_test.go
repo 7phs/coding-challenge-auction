@@ -28,10 +28,10 @@ func TestBid_Bid(t *testing.T) {
 			<-start
 
 			for i := 0; i < 1000; i++ {
-				v = rand.Int63n(1000*int64(precision)) + 1
+				v = rand.Int63n(1000*int64(Precision)) + 1
 				atomic.StoreInt64(&expected, v)
 
-				b.SetBid(float64(v) / precision)
+				b.SetBid(float64(v) / Precision)
 			}
 		}()
 	}
@@ -43,7 +43,7 @@ func TestBid_Bid(t *testing.T) {
 	close(shutdown)
 	wait.Wait()
 
-	exist := int64(b.Bid() * precision)
+	exist := int64(b.Bid() * Precision)
 	if exist != expected {
 		t.Error("failed to store the max value of bid. Got ", exist, ", but expected is ", expected)
 	}
@@ -64,12 +64,12 @@ func benchBidBid(b *testing.B, multiplier int) {
 		go func() {
 			defer test.Done()
 
-			v := rand.Int63n(1000*int64(precision)) + 1
+			v := rand.Int63n(1000*int64(Precision)) + 1
 
 			<-start
 
 			for n := 0; n < b.N/multiplier; n++ {
-				bi.SetBid(float64(v) / precision)
+				bi.SetBid(float64(v) / Precision)
 			}
 		}()
 	}

@@ -12,26 +12,27 @@ const (
 )
 
 type ItemI interface {
-	Id() itemKey
+	Id() ItemKey
 	SetTitle(title string)
 	Title() string
-	Bids(func())
+	Top() (BidRecI, error)
+	Bids() []BidRecI
 }
 
-type itemKey int32
+type ItemKey int32
 
-func nextItemKey() itemKey {
-	return itemKey(rand.Int31())
+func nextItemKey() ItemKey {
+	return ItemKey(rand.Int31())
 }
 
 type itemInfo struct {
 	sync.RWMutex
 
-	id    itemKey
+	id    ItemKey
 	title string
 }
 
-func (o *itemInfo) Id() itemKey {
+func (o *itemInfo) Id() ItemKey {
 	o.RLock()
 	defer o.RUnlock()
 

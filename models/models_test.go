@@ -13,7 +13,7 @@ func benchModelsPush(b *testing.B, multiplier int) {
 
 		usersCount = 10000
 		itemsCount = 200
-		bidsCount  = int(30 * int64(precision))
+		bidsCount  = int(30 * int64(Precision))
 
 		userTable = NewUserTable()
 		itemTable = NewItemTable()
@@ -33,7 +33,7 @@ func benchModelsPush(b *testing.B, multiplier int) {
 			<-start
 
 			for n := 1; ; n++ {
-				bidTable.Push(itemKey(items[n%itemsCount]), userKey(users[n%usersCount]), float64(bids[n%bidsCount])/precision)
+				bidTable.Push(ItemKey(items[n%itemsCount]), UserKey(users[n%usersCount]), float64(bids[n%bidsCount])/Precision)
 
 				if n > b.N/multiplier {
 					break

@@ -6,25 +6,26 @@ import (
 )
 
 type UserI interface {
-	Id() userKey
+	Id() UserKey
 	SetName(name string)
 	Name() string
+	Bids() []BidRecI
 }
 
-type userKey int32
+type UserKey int32
 
-func nextUserKey() userKey {
-	return userKey(rand.Int31())
+func nextUserKey() UserKey {
+	return UserKey(rand.Int31())
 }
 
 type userInfo struct {
 	sync.RWMutex
 
-	id   userKey
+	id   UserKey
 	name string
 }
 
-func (o *userInfo) Id() userKey {
+func (o *userInfo) Id() UserKey {
 	o.RLock()
 	defer o.RUnlock()
 
@@ -62,4 +63,18 @@ func User(name string) *user {
 
 func (o *user) Push(bid BidRecI) {
 	o.bids.LoadOrStore(bid.Id(), bid)
+}
+
+func (o *user) Bids() []BidRecI {
+	o.RLock()
+	defer o.RUnlock()
+
+	result := make([]BidRecI, 0, 100)
+	o.bids.Range(func(key, value interface{}) bool {
+		result = append(result, value.(BidRecI))
+
+		return true
+	})
+
+	return result
 }
