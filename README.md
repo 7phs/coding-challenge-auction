@@ -140,7 +140,7 @@ A service supporting a several command to communicate with a service using REST 
 
 Estimated just an internal storage without checking a performance of REST API on MacBool Pro 15 Mid 2012:
 
-- **4.05-6.3 μs/op** - pushing a bid into a storage;
+- **4.05-6.3 μs/op** - pushing a bid into a storage (~200 000 pushings per second);
 - **75-80 ns/op**    - pushing a bid into an item with heap sorting;
 - **720-850 ns/op**  - updating a value of a bid
 
