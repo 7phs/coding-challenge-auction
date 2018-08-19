@@ -153,7 +153,7 @@ It helps solving a synchronization bottleneck, in my opinion.
 ### Sync.Map
 
 A lock-free implementation of a map. Using to store a list of users, items and bids.
-It was choosing related no requirements to implemented getting a list of users or items.
+It was choosing related no requirements to implemented getting a sorted list of users or items.
 
 Sorting bids of item or bid of user by a bid value or by updated time was implementing in handlers
 to preventing synchronization a storage and preventing a bottleneck while pushing bids.    
